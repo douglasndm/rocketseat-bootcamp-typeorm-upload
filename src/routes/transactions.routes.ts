@@ -1,14 +1,24 @@
 import { Router } from 'express';
 
-// import TransactionsRepository from '../repositories/TransactionsRepository';
+import { getRepository } from 'typeorm';
+import TransactionsRepository from '../repositories/TransactionsRepository';
 import CreateTransactionService from '../services/CreateTransactionService';
+import Transaction from '../models/Transaction';
 // import DeleteTransactionService from '../services/DeleteTransactionService';
 // import ImportTransactionsService from '../services/ImportTransactionsService';
 
 const transactionsRouter = Router();
 
 transactionsRouter.get('/', async (request, response) => {
-  // TODO
+  const transactionsRepository = new TransactionsRepository();
+  const transactionsRepo = getRepository(Transaction);
+
+  const transactions = await transactionsRepo.find();
+  const balance = await transactionsRepository.getBalance();
+
+  const result = { transactions, balance };
+
+  return response.status(200).json(result);
 });
 
 transactionsRouter.post('/', async (request, response) => {
