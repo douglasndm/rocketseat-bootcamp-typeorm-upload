@@ -47,7 +47,7 @@ class CreateTransactionService {
         title,
         value,
         type,
-        category: categoryId,
+        category_id: categoryId,
       });
 
       const transactionResult = await transactionsRepository.save(transaction);

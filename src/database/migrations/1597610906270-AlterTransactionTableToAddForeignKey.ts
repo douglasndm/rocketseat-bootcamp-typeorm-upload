@@ -24,7 +24,7 @@ export default class AlterTransactionTableToAddForeignKey1597610906270
         name: 'Category',
         columnNames: ['category_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'category',
+        referencedTableName: 'categories',
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
       }),

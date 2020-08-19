@@ -1,4 +1,9 @@
-import { EntityRepository, Repository, getRepository } from 'typeorm';
+import {
+  EntityRepository,
+  Repository,
+  getRepository,
+  getCustomRepository,
+} from 'typeorm';
 
 import Transaction from '../models/Transaction';
 
@@ -25,9 +30,9 @@ class TransactionsRepository extends Repository<Transaction> {
       } else if (t.type === 'outcome') {
         outcome += t.value;
       }
-
-      total += t.value;
     });
+
+    total = income - outcome;
 
     const balance: Balance = {
       income,

@@ -1,11 +1,17 @@
 import { Router } from 'express';
 
-import { getRepository } from 'typeorm';
+import { getRepository, getCustomRepository } from 'typeorm';
+import multer from 'multer';
+import AppError from '../errors/AppError';
 import TransactionsRepository from '../repositories/TransactionsRepository';
 import CreateTransactionService from '../services/CreateTransactionService';
 import Transaction from '../models/Transaction';
-// import DeleteTransactionService from '../services/DeleteTransactionService';
-// import ImportTransactionsService from '../services/ImportTransactionsService';
+import DeleteTransactionService from '../services/DeleteTransactionService';
+import ImportTransactionsService from '../services/ImportTransactionsService';
+
+import uploadConfig from '../config/upload';
+
+const upload = multer(uploadConfig);
 
 const transactionsRouter = Router();
 
@@ -24,6 +30,18 @@ transactionsRouter.get('/', async (request, response) => {
 transactionsRouter.post('/', async (request, response) => {
   const { title, value, type, category } = request.body;
 
+  const transactionRepo = getCustomRepository(TransactionsRepository);
+
+  const balance = await transactionRepo.getBalance();
+
+  console.log(balance);
+  console.log(value);
+  console.log(type);
+
+  if (type === 'outcome' && balance.total < value) {
+    throw new AppError("You don't have enough money", 400);
+  }
+
   const createTransaction = new CreateTransactionService();
   const responseTransaction = await createTransaction.execute({
     title,
@@ -36,11 +54,24 @@ transactionsRouter.post('/', async (request, response) => {
 });
 
 transactionsRouter.delete('/:id', async (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const deleteTransaction = new DeleteTransactionService();
+  await deleteTransaction.execute({ transaction_id: id });
+
+  return response.status(204).send('deleted');
 });
 
-transactionsRouter.post('/import', async (request, response) => {
-  // TODO
-});
+transactionsRouter.post(
+  '/import',
+  upload.single('file'),
+  async (request, response) => {
+    const importTransactions = new ImportTransactionsService();
+    const result = await importTransactions.execute({
+      fileName: request.file.filename,
+    });
+    return response.send(result);
+  },
+);
 
 export default transactionsRouter;
