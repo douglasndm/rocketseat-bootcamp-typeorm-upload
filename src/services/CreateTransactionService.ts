@@ -29,16 +29,16 @@ class CreateTransactionService {
         where: { title: category },
       });
 
-      let categoryId: string;
+      let cate: Category;
 
       if (!checkIfCategoryExists) {
         const categoryRepo = categoryRepository.create({ title: category });
 
         await categoryRepository.save(categoryRepo);
 
-        categoryId = categoryRepo.id;
+        cate = categoryRepo;
       } else {
-        categoryId = checkIfCategoryExists.id;
+        cate = checkIfCategoryExists;
       }
 
       const transactionsRepository = getRepository(Transaction);
@@ -47,7 +47,7 @@ class CreateTransactionService {
         title,
         value,
         type,
-        category_id: categoryId,
+        category: cate,
       });
 
       const transactionResult = await transactionsRepository.save(transaction);

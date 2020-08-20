@@ -30,13 +30,13 @@ transactionsRouter.get('/', async (request, response) => {
 transactionsRouter.post('/', async (request, response) => {
   const { title, value, type, category } = request.body;
 
+  if (type !== 'income' || type !== 'outcome') {
+    throw new AppError('Check the transaction type', 400);
+  }
+
   const transactionRepo = getCustomRepository(TransactionsRepository);
 
   const balance = await transactionRepo.getBalance();
-
-  console.log(balance);
-  console.log(value);
-  console.log(type);
 
   if (type === 'outcome' && balance.total < value) {
     throw new AppError("You don't have enough money", 400);
